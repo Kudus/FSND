@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
+from sqlalchemy.orm import backref
 from forms import *
 from flask_migrate import Migrate
 from datetime import datetime
@@ -31,11 +32,21 @@ migrate = Migrate(app, db)
 
 # Implement Show models, and complete all model relationships and properties, as a database migration.
 
-shows = db.Table('shows', 
-    db.Column('venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key=True),
-    db.Column('artist_id', db.Integer, db.ForeignKey('Artist.id'), primary_key=True),
-    db.Column('start_time', db.DateTime, nullable=False, default=datetime.utcnow)
-)
+# shows = db.Table('shows', 
+#     db.Column('venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key=True),
+#     db.Column('artist_id', db.Integer, db.ForeignKey('Artist.id'), primary_key=True),
+#     db.Column('start_time', db.DateTime, nullable=False, default=datetime.utcnow)
+# )
+
+class Show(db.Model):
+    __tablename__ = 'Show'
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
+    start_time = db.Column(db.DateTime, primary_key=True)
+    
+    artist = db.relationship('Artist', back_populates='venues')
+    venue = db.relationship('Venue', back_populates='artists')
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
@@ -52,8 +63,8 @@ class Venue(db.Model):
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String)
-    artists = db.relationship('Artist', secondary=shows,
-              backref=db.backref('venues', lazy=True))
+    
+    artists = db.relationship('Show', back_populates='venue')
 
     def __repr__(self):
       return f'<Venue {self.name} {self.city} {self.state}>'
@@ -74,6 +85,9 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String)
+
+    venues = db.relationship('Show',back_populates='artist')
+
 
     def __repr__(self):
       return f'<Artist {self.name} {self.genres} {self.state}>' 
@@ -131,7 +145,7 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-  return render_template('pages/venues.html', areas=data);
+  return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
