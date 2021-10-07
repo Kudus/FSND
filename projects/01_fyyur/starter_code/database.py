@@ -2,6 +2,9 @@ from app import db, Venue, Artist, Show
 
 v = Venue(name = "Park Square Live Music & Coffee",
 genres= ["Rock n Roll", "Jazz", "Classical", "Folk"],
+# genres[0] = "Rock n Roll",
+# genres[1] = "Jazz",
+# genres[2] = "Folk",
 address = "34 Whiskey Moore Ave",
 city = "San Francisco",
 state = "CA",
@@ -23,7 +26,8 @@ a = Artist(name = "The Wild Sax Band",
 genres = ["Jazz", "Classical"],
 city = "San Francisco",
 state = "CA",
-phone = "432-325-5432")
+phone = "432-325-5432",
+image_link = "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",)
     
 
 s1.artist = a
